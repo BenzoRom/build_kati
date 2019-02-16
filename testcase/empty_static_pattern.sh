@@ -1,10 +1,12 @@
-# Copyright 2015 Google Inc. All rights reserved
+#!/bin/bash
+#
+# Copyright 2018 Google Inc. All rights reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#      http:#www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,20 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-all: ckati ckati_tests
+set -u
 
-include Makefile.kati
-include Makefile.ckati
+mk="$@"
 
-test: run_tests
+cat <<EOF > Makefile
+test:
+	@echo "PASS"
+list :=
+\$(list): %.foo: %.bar
+	cp \$< \$@
+EOF
 
-test_quietly: run_tests
-test_quietly: RUN_TESTS_QUIETLY := -q
-
-run_tests: all ckati_tests
-	ruby runtest.rb -c -n $(RUN_TESTS_QUIETLY)
-
-
-clean: ckati_clean
-
-.PHONY: test clean ckati_tests
+if echo "${mk}" | grep -qv "kati"; then
+  # Make doesn't support these warnings, so write the expected output.
+  echo 'PASS'
+else
+  ${mk} --no_builtin_rules --werror_implicit_rules 2>&1
+fi
